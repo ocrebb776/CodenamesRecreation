@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hues and Clues Client</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f4f9; padding-top: 2rem; }
+        .container { max-width: 95%; } /* Wider container */
+        .card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+
+        /* Status Bar */
+        #status-bar { margin-bottom: 1rem; padding: 10px; border-radius: 6px; background: #e9ecef; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;}
+        .status-dot { height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .connected .status-dot { background-color: #28a745; }
+
+        /* Log Area */
+        #log { height: 40vh; overflow-y: scroll; border: 1px solid #eee; background: #fafafa; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; }
+        .message { margin-bottom: 8px; word-break: break-word; }
+        .received { color: #28a745; font-weight: bold; }
+        .sent { color: #007bff; font-weight: bold; }
+        .system { color: #6c757d; font-style: italic; font-size: 0.85rem; }
+
+        #table-wrapper {
+            overflow-x: auto;
+            background: black;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        #table{
+            display: grid;
+            grid-template-rows: repeat(18, 40px);
+            grid-template-columns: repeat(32, 40px);
+            background: black;
+            color:white;
+            gap: 5px;
+            width: max-content;
+        }
+
+        .color-cell {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .color-cell:hover {
+            transform: scale(1.1);
+            border: 2px solid white;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="mb-4 text-center">Hues and Clues</h2>
+
+    <div id="status-bar" class="mb-3">
+        <span id="connection-text"><span class="status-dot"></span>Disconnected</span>
+        <button id="btnConnect" class="btn btn-sm btn-outline-primary" onclick="connect()" style="display:none;">Reconnect</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-section" class="card p-4">
+        <h4 class="card-title mb-3">Join Game</h4>
+        <div class="mb-3">
+            <label for="displayNameInput" class="form-label">Display Name</label>
+            <input type="text" class="form-control" id="displayNameInput" placeholder="Enter your name">
+        </div>
+        <button class="btn btn-primary w-100" onclick="joinGame()">Join</button>
+    </div>
+
+    <!-- Game Section (Hidden initially) -->
+    <div id="game-section" class="card p-4 d-none">
+        <h4 class="card-title mb-3">Game Room</h4>
+        <div class="alert alert-info">
+            <strong>Logged in as:</strong> <span id="user-name-display"></span><br>
+            <strong>User ID:</strong> <span id="user-id-display"></span>
+        </div>
+        <div id="table-wrapper">
+            <div id="table"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Modal Container -->
+<div id="dynamic-modal-container"></div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let socket = null;
+    let userId = null;
+    let userName = null;
+
+    const statusText = document.getElementById('connection-text');
+    const statusBar = document.getElementById('status-bar');
+    const btnConnect = document.getElementById('btnConnect');
+
+    const loginSection = document.getElementById('login-section');
+    const gameSection = document.getElementById('game-section');
+    const displayNameInput = document.getElementById('displayNameInput');
+    const userNameDisplay = document.getElementById('user-name-display');
+    const userIdDisplay = document.getElementById('user-id-display');
+
+    // Automatically connect when the page loads
+    window.onload = connect;
+
+    function connect() {
+        const host = window.location.host;
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const url = protocol + host;
+
+        log("System", "Connecting to " + url + "...");
+
+        try {
+            socket = new WebSocket(url);
+
+            socket.onopen = function(e) {
+                log("System", "Connection established!");
+                setConnectedState(true);
+            };
+
+            socket.onmessage = function(event) {
+                handleServerMessage(event.data);
+            };
+
+            socket.onclose = function(event) {
+                setConnectedState(false);
+                log("System", "Disconnected.");
+            };
+
+            socket.onerror = function(error) {
+                console.error("WebSocket error:", error);
+            };
+
+        } catch (e) {
+            log("Error", "Setup failed: " + e.message);
+        }
+    }
+
+    function sendRequest(type, body) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            const request = {
+                requestType: type,
+                requestBody: body,
+                requestId: getCode() // Optional: generate a unique ID for tracking
+            };
+            const jsonRequest = JSON.stringify(request);
+            socket.send(jsonRequest);
+            // log("Me", `Sent Request: ${type} - ${body}`);
+        } else {
+            log("Error", "Not connected to server.");
+        }
+    }
+
+    function getCode() {
+        return userId
+    }
+
+    function joinGame() {
+        const name = displayNameInput.value.trim();
+        if (name) {
+            userName = name;
+            sendRequest("Join", name);
+        } else {
+            alert("Please enter a display name.");
+        }
+    }
+
+    function handleServerMessage(data) {
+        try {
+            const response = JSON.parse(data);
+
+            if (response.sendType === "ID_CREATION") {
+                userId = response.sendBody;
+                userIdDisplay.textContent = userId;
+                userNameDisplay.textContent = userName;
+
+                // Switch UI
+                loginSection.classList.add('d-none');
+                gameSection.classList.remove('d-none');
+
+                log("System", "Joined game successfully with ID: " + userId);
+
+                // Request colours
+                sendRequest("GetColours", "");
+
+            } else if (response.sendType === "MESSAGE") {
+                log("Server", response.sendBody);
+            }else if(response.sendType === "COLOURS"){
+                console.log(response)
+                let colorData = JSON.parse(response.sendBody)
+                console.log(colorData)
+                displayColors(colorData);
+
+            } else if (response.sendType === "GUESS_MADE") {
+                log("Server", "Guess Accepted!");
+            } else if (response.sendType === "GUESS_ERROR") {
+                log("Server", "Guess Error: " + response.errorMessage);
+            } else if(response.sendType === "GUESS_GIVER"){
+                listOfCols = JSON.parse(response.requestBody)
+                console.log(listOfCols)
+                //here
+            }else {
+                log("Server", "Unknown message type: " + data);
+            }
+        } catch (e) {
+            console.error("Error parsing server message:", e);
+            // Fallback for non-JSON messages
+            log("Server", data);
+        }
+    }
+
+    function log(sender, message) {
+        console.log(sender + ": " + message)
+    }
+
+    function setConnectedState(isConnected) {
+        if (isConnected) {
+            statusBar.classList.add('connected');
+            statusText.innerHTML = '<span class="status-dot"></span>Connected';
+            btnConnect.style.display = 'none';
+        } else {
+            statusBar.classList.remove('connected');
+            statusText.innerHTML = '<span class="status-dot"></span>Disconnected';
+            btnConnect.style.display = 'block';
+
+            // Reset UI on disconnect
+            loginSection.classList.remove('d-none');
+            gameSection.classList.add('d-none');
+        }
+    }
+
+    displayNameInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            joinGame();
+        }
+    });
+
+    function displayColors(colorData){
+        let cols = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+        let rows = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P"]
+        let grid = document.getElementById("table")
+        grid.innerHTML = "";
+
+        // Helper to create a cell
+        function createCell(text, isHeader) {
+            let div = document.createElement("div");
+            div.textContent = text;
+            div.style.display = "flex";
+            div.style.justifyContent = "center";
+            div.style.alignItems = "center";
+            if(isHeader) div.style.fontWeight = "bold";
+            return div;
+        }
+
+        // Helper to create a color cell
+        function createColorCell(hex, key) {
+            let div = document.createElement("div");
+            div.className = "color-cell";
+            div.style.backgroundColor = hex;
+            div.style.width = "100%";
+            div.style.height = "100%";
+            div.onclick = function() {
+                sendRequest("Guess", key);
+                log("Me", "Guessed " + key);
+            };
+            return div;
+        }
+
+        // Top Header Row
+        grid.appendChild(createCell("")); // Top-Left corner
+        for(let c of cols) {
+            grid.appendChild(createCell(c, true));
+        }
+        grid.appendChild(createCell("")); // Top-Right corner
+
+        // Data Rows
+        for(let r of rows) {
+            // Left Header
+            grid.appendChild(createCell(r, true));
+
+            // Colors
+            for(let c of cols) {
+                let key = r + c;
+                let hex = colorData[key] || "#000000";
+                grid.appendChild(createColorCell(hex, key));
+            }
+
+            // Right Header
+            grid.appendChild(createCell(r, true));
+        }
+
+        // Bottom Header Row
+        grid.appendChild(createCell("")); // Bottom-Left corner
+        for(let c of cols) {
+            grid.appendChild(createCell(c, true));
+        }
+        grid.appendChild(createCell("")); // Bottom-Right corner
+    }
+
+    /**
+     * Creates and shows a Bootstrap modal dynamically.
+     * @param {string} title - The title of the modal.
+     * @param {string} body - The HTML content of the modal body.
+     * @param {Array} buttons - Array of button objects { text: "Label", class: "btn-primary", onclick: function }.
+     */
+    function showModal(title, body, buttons = []) {
+        const modalId = 'dynamicModal';
+        const container = document.getElementById('dynamic-modal-container');
+
+        // Generate buttons HTML
+        let buttonsHtml = '';
+        buttons.forEach((btn, index) => {
+            buttonsHtml += `<button type="button" class="btn ${btn.class || 'btn-secondary'}" id="modal-btn-${index}">${btn.text}</button>`;
+        });
+
+        const modalHtml = `
+            <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${title}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${body}
+                        </div>
+                        <div class="modal-footer">
+                            ${buttonsHtml}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = modalHtml;
+
+        // Attach event listeners to buttons
+        buttons.forEach((btn, index) => {
+            const btnElement = document.getElementById(`modal-btn-${index}`);
+            if (btnElement && btn.onclick) {
+                btnElement.addEventListener('click', () => {
+                    btn.onclick();
+                    // Optional: close modal after click if needed, or let the handler do it
+                    // const modalInstance = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                    // modalInstance.hide();
+                });
+            }
+        });
+
+        const modalElement = document.getElementById(modalId);
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        return modal;
+    }
+</script>
+
+</body>
+</html>
