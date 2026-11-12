@@ -1,0 +1,18 @@
+.formBackground{
+    -fx-background-color: #c4003f;
+}
+.laucherImage{
+    -fx-background-image: url(laucherHome.jpeg);
+    -fx-background-position: center,center,center,center  ;
+    -fx-background-size: cover;
+}
+.createGameBtn{
+    -fx-background-color: #e73822;
+}
+.createGameBtn:hover{
+    -fx-background-color: #cb2612;
+}
+.createGameBtn:pressed{
+    -fx-background-color: #8d1200;
+
+}

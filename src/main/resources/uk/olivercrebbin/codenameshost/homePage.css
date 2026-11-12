@@ -1,0 +1,89 @@
+.grid{
+    -fx-background-image: url("woodTexture.png");
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+.Whitecard{
+    -fx-background-color: #eee;
+
+}
+.Whitecard:hover{
+    -fx-background-color: #eee;
+}
+.card{
+    -fx-border-width: 0px;
+    -fx-background-radius: 10px;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-origin: padding-box;
+    -fx-background-clip: border-box;
+    -fx-alignment: center;
+}
+.card .label {
+    -fx-font-size: 3em; /* Adjust multiplier as needed */
+}
+.bombCard{
+    -fx-background-color: black;
+    -fx-background-radius: 10px;
+}
+.redCard{
+    -fx-background-image: url("redPlayer.png");
+    -fx-background-radius: 10px;
+
+
+}
+.blueCard{
+    -fx-background-image: url("bluePlayer.png");
+    -fx-background-radius: 10px;
+
+}
+.civi{
+    -fx-background-image: url("civi.png");
+    -fx-background-radius: 10px;
+
+}
+
+.tsv{
+    -fx-padding: 8 15 15 15;
+    -fx-background-insets: 0,0 0 5 0, 0 0 6 0, 0 0 7 0;
+    -fx-background-radius: 8;
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #a34313 0%, #903b12 100%),
+            #9d4024,
+            #d86e3a,
+            radial-gradient(center 50% 50%, radius 100%, #d86e3a, #c54e2c);
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.75) , 4,0,0,1 );
+    -fx-font-weight: bold;
+    -fx-font-size: 1.1em;
+}
+.tsv:hover{
+
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #a34313 0%, #903b12 100%),
+            #9d4024,
+            #d86e3a,
+            radial-gradient(center 50% 50%, radius 20%, #d86e3a, #c54e2c);
+}
+.tsv:pressed{
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #a34313 0%, #903b12 100%),
+            #9d4024,
+            #d86e3a,
+            radial-gradient(center 50% 50%, radius 0%, #d86e3a, #c54e2c);
+}
+.blueCard .label{
+    -fx-text-fill:white;
+}
+.redCard .label{
+    -fx-text-fill:white;
+}
+
+.civi .label{
+    -fx-text-fill: white;
+}
+.bombCard .label{
+    -fx-text-fill: white;
+
+}

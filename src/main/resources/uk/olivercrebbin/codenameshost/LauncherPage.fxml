@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@LaucherPage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.olivercrebbin.codenameshost.LaucherPageController">
+   <top>
+      <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <right>
+      <AnchorPane prefHeight="373.0" prefWidth="22.0" styleClass="formBackground" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_RIGHT" prefHeight="47.0" prefWidth="199.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+               <children>
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="CodeNames " textAlignment="RIGHT" wrappingWidth="175.7724609375">
+                     <font>
+                        <Font size="26.0" />
+                     </font>
+                  </Text>
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="By Oliver C" textAlignment="RIGHT" />
+               </children>
+            </VBox>
+            <Button layoutX="28.0" layoutY="173.0" mnemonicParsing="false" onAction="#startGame" prefHeight="52.0" prefWidth="155.0" text="Create Game" textFill="WHITE" AnchorPane.leftAnchor="28.0" AnchorPane.rightAnchor="26.0">
+               <font>
+                  <Font size="19.0" />
+               </font>
+               <styleClass>
+                  <String fx:value="btn" />
+                  <String fx:value="createGameBtn" />
+               </styleClass>
+            </Button>
+         </children>
+         <stylesheets>
+            <URL value="@global.css" />
+            <URL value="@LaucherPage.css" />
+         </stylesheets>
+      </AnchorPane>
+   </right>
+   <center>
+      <Pane prefHeight="373.0" prefWidth="389.0" styleClass="laucherImage" stylesheets="@LaucherPage.css" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

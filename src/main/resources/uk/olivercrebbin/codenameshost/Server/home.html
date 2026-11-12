@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeNames Homepage</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="resc/bootstrapQuartz.min.css">
+    <style>
+        #gameView {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            grid-gap: 10px;
+
+        }
+        .containerForGrid{
+            max-width: 100%;
+            overflow: auto;
+        }
+
+
+        .cardDisp{
+         width: 100%;
+    height: 100%;
+    background-color: #474747;
+    border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+        }
+
+        .RED_TEAM{
+            background-image: url("image/redplayerWeb.png");
+        }
+        .BLUE_TEAM{
+            background-image: url("image/bluePlayerWeb.png");
+        }
+        .Civilian{
+            background-image: url("image/civiWeb.png");
+        }
+        .flippedCard{
+            box-sizing: border-box;
+            box-shadow: inset 0px 0px 2px 2px white, 0px 0px 2px 2px white;
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            CodeNames
+            <span id="code"></span>
+        
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+       
+    </div>
+</nav>
+<div class="container mb-3">
+    <div class="h1">
+        Welcome to CodeNames
+    </div>
+    </div>
+    <div class="container mt-3 mb-3" id="formCont">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title">
+                <div class="h1">
+                    Join the game
+                </div>
+            </div>
+            <form name="joinForm">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Display Name</label>
+                    <input name="name" type="text" class="form-control" id="name" aria-describedby="name">
+                </div>
+                <div class="mb-3">
+                    <label for="enterCode" class="form-label">Code</label>
+                    <input type="text" class="form-control" id="enterCode" name="enterCode">
+                </div>
+
+                <div class="mb-3">
+                    <label for="selectTeam" class="form-label">Team</label>
+
+                    <select class="form-select" aria-label="Default select example" id="selectTeam" name="selectTeam">
+                        <option value="BLUE_TEAM">Blue Team</option>
+                        <option value="RED_TEAM">Red Team</option>
+                        <option value="2">Observer</option>
+                    </select>
+                </div>
+                <div onclick="submitForm()" class="btn btn-primary">Submit</div>
+            </form>
+        </div>
+    </div>
+
+    </div>
+    <div class="container mt-3 mb-3" id="gameCard" style="display: none;">
+
+    <div class="card">
+        <div class="card-body">
+       
+            <div class="h4">
+            Current Team Guessing: <span id="currTeam"></span>
+        </div>
+            <div class="containerForGrid">
+            <div id="gameView">
+
+            </div>
+</div> 
+        </div>
+      
+        <div class="btn-group" role="group" aria-label="Basic example">
+  <button type="button" class="btn btn-info" onclick="finishTurn()">Finish Turn</button>
+  <button type="button" class="btn btn-primary" onclick="toggleSpymaster()">Toggle Spymaster</button>
+  <button type="button" class="btn btn-danger" onclick="startListening()">Refresh Connection</button>
+            
+</div>
+    </div>
+</div>
+    <script src="resc/home.js"></script>
+</body>
+</html>
